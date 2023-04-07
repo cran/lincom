@@ -1,0 +1,6 @@
+useDynLib(lincom, .registration = TRUE)
+
+import(SparseM, Matrix, Rmosek)
+importFrom("methods", "as")
+importFrom("stats", "binomial", "glm")
+export(eum,wmse)
