@@ -1,0 +1,86 @@
+---
+title: "Linear Biomarker Combination: Empirical Performance Optimization"
+author: "Yijian Huang (yhuang5@emory.edu)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Linear Biomarker Combination: Empirical Performance Optimization}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`lincom` implements linear combination methods for biomarkers
+via empirical performance optimization with respect to two performance
+metrics: (1) specificity at controlled sensitivity (or sensitivity at
+controlled specificity) (Huang and Sanda, 2022), and (2) weighted average
+of false positive rate and false negative rate. The second method
+is a variant of the maximum score estimator (Manski, 1975, 1985). In both
+cases, the algorithm
+of Huang and Sanda (2022) is used to provide a solution that balances between
+computational efficiency and quality.
+
+## Installation
+`lincom` is available on CRAN:
+```{r install, eval=FALSE, message=FALSE, warning=FALSE}
+install.packages("lincom")
+```
+'MOSEK' solver is used and needs to be installed; an academic license for
+'MOSEK' is free.
+
+## Simulated dataset for illustration
+```{r simulation, eval=TRUE, message=FALSE, warning=FALSE}
+library(lincom)
+## simulate 3 biomarkers for 100 cases and 100 controls
+n1 <- 100
+n0 <- 100
+mk <- rbind(matrix(rnorm(3*n1),ncol=3),matrix(rnorm(3*n0),ncol=3))
+mk[1:n1,1] <- mk[1:n1,1]/sqrt(2)+1
+mk[1:n1,2] <- mk[1:n1,2]*sqrt(2)+1
+```
+`mk[1:n1,]` and `mk[(n1+1):(n1+n0),]` contain the case and control data,
+respectively.
+
+## Empirical maximization of specificity at controlled sensitivity (or sensitivity at controlled specificity)
+The following code performs empirical maximization of specificity at 95% sensitivity.
+```{r eum, message=FALSE, warning=FALSE}
+## The following two lines are commented out - require installation of 'MOSEK' to run
+#lcom1 <- eum(mk, n1=n1, s0=0.95, grdpt=0)
+#lcom1
+```
+Above, `n1` is the case size, `s0` is the control level, and `grdpt` specifies
+how initial value of the optimization is obtained (logistic regression if
+`grdpt=0`, and coarse grid search with `grdpt` grid points otherwise). Additional arguments include `fixsens` (fixing sensitivity if `TRUE` and specificity otherwise), and `lbmdis` (larger biomarker values is more associated with cases if `TRUE` and controls otherwise).
+
+The outputs include the resulting combination coefficient (`coef`), maximum
+empirical value of the performance metric (`hs`), and the resulting
+threshold (`threshold`), along with their initial value counterparts (from logistic regression or coarse grid search).
+
+## Empirical minimization of weighted average of false positive rate and false negative rate
+```{r wmse, message=FALSE, warning=FALSE}
+## default relative weight r=1.
+## Require installation of 'MOSEK' to run
+## The following two lines are commented out - require installation of 'MOSEK' to run
+#lcom2 <- wmse(mk, n1=n1)
+#lcom2
+```
+The inputs and outputs are similar to those of `eum`. However, the initial value here is obtained through logistic regression only.
+
+With cohort design, setting `r=n0/n1` leads to Manski's original estimator.
+
+## References
+
+Huang, Y. and Sanda, M. G. (2022). Linear biomarker combination for
+constrained classification. _The Annals of Statistics_ 50, 2793--2815.
+
+Manski, C. F. (1975). Maximum score estimation of the stochastic utility model
+of choice. _Journal of Econometrics_ 3, 205--228.
+
+Manski, C. F. (1985). Semiparametric analysis of discrete response. Asymptotic
+properties of the maximum score estimator. _Journal of Econometrics_ 27,
+313--333.

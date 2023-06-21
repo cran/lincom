@@ -7,7 +7,7 @@
   \item{mk}{biomarker values of cases followed by controls, with each row
   containing multiple markers from an individual.}
   \item{n1}{size of cases.}
-  \item{r}{relative weight of false positive rate and false negative rate.}
+  \item{r}{weight of false positive rate relative to false negative rate.}
   \item{w}{weight for l1 norm of combination coefficient in the objective
   function (w>1 guarantees sound asymptotic properties).}
   \item{contract}{reduction factor in the sequence of approximation parameters

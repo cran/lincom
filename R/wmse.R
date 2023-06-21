@@ -58,7 +58,7 @@ wmse <- function(mk, n1, r=1, w=2, contract=0.8, lbmdis=TRUE)
  }
  opt_coef <- opt_coef/sum(abs(opt_coef[-1]))
  opt_obj <- wmse_objcon(M1,M0,opt_coef,r,w)$obj
- list(coef=as.vector(opt_coef)[-1], obj=opt_obj+1, threshold=opt_coef[1],
+ list(coef=as.vector(opt_coef)[-1], obj=opt_obj, threshold=opt_coef[1],
       init_coef=init[-1], init_obj=init_obj+1, init_threshold=init[1])
 }
 
@@ -96,10 +96,10 @@ wmse_objcon <- function(M1,M0,beta,r,w,epi=0)
 {n1 <- dim(M1)[1]
  n0 <- dim(M0)[1]
  obj <- ifelse(epi == 0,
-               r*mean(as.numeric(M0 %*% beta >= 0))-
-               mean(as.numeric(M1 %*% beta >= 0)),
+               r*mean(as.numeric(M0 %*% beta >= 0))+
+               mean(as.numeric(M1 %*% beta < 0)),
                r*mean(pmax(M0 %*% beta,0)-pmax(M0 %*% beta - epi,0))/epi
-	       -mean(pmax(M1 %*% beta,0)-pmax(M1 %*% beta - epi,0))/epi+
-               +w*(1+r)*(1-sum(abs(beta[-1]))))
+	       +1-mean(pmax(M1 %*% beta,0)-pmax(M1 %*% beta - epi,0))/epi+
+               -w*(1+r)*sum(abs(beta[-1])))
  list(obj=obj,con=sum(abs(beta[-1]))-1)
 }
